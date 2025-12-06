@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:6
+    container_name: nodevault-mongo
+    restart: unless-stopped
+    env_file:
+      - ./compose.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - nodevault-mongo-data:/data/db
+    networks:
+      - nodevault-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile   # Dockerfile is in /home/abdullah/Desktop
+    container_name: nodevault-app
+    depends_on:
+      - mongo
+    env_file:
+      - ./.env
+      - ./compose.env
+    ports:
+      - "3000:3000"
+    networks:
+      - nodevault-net
+    stdin_open: true  # required for CLI input
+    tty: true         # keeps the container interactive
+
+volumes:
+  nodevault-mongo-data:
+
+networks:
+  nodevault-net:
+    driver: bridge
+
